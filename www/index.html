@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html class="root-container">
+<head>
+  <meta charset="utf-8">
+  <title>ESP IDF System Monitor</title>
+
+  <!-- Tailwind CSS, custom variant definition, and manual CSS color var loader -->
+  <!-- Linter errors here are expected and normal -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>  
+  <style type="text/tailwindcss">
+    @custom-variant dark (&:where(.dark, .dark *));
+    @source inline("bg-{red,green,yellow,blue,orange,slate,gray}-{50,{100..900..100},950}");
+  </style>
+  
+  <!-- Load sysmon-theme-color-vars.css, sysmon-theme-utility-classes.css, and sysmon-theme.css with @apply support -->
+  <!-- 
+    We use fetch() to load the CSS files and inject them as <style type="text/tailwindcss"> blocks
+    instead of using regular <link> tags. This is required because Tailwind's @apply directive
+    only works when CSS is processed by Tailwind, which requires the CSS to be in a Tailwind-processed
+    style block. Regular <link> tags don't get processed by Tailwind's browser version.
+    
+    We load CSS files in order:
+    1. sysmon-theme-color-vars.css (defines CSS custom properties/variables)
+    2. sysmon-theme-utility-classes.css (defines utility classes that use the variables)
+    3. sysmon-theme.css (uses those utility classes with @apply)
+    This ensures Tailwind processes definitions before they're referenced.
+  -->
+  <script>
+    Promise.all([
+      fetch('/css/sysmon-theme-color-vars.css').then(response => response.text()),
+      fetch('/css/sysmon-theme-utility-classes.css').then(response => response.text()),
+      fetch('/css/sysmon-theme.css').then(response => response.text())
+    ])
+      .then(([colorVarsCss, utilityClassesCss, themeCss]) => {
+        // Insert CSS chunks in order: color vars, utility classes, then theme
+        [colorVarsCss, utilityClassesCss, themeCss].forEach(cssText => {
+          const style = document.createElement('style');
+          style.setAttribute('type', 'text/tailwindcss');
+          style.textContent = cssText;
+          document.head.appendChild(style);
+        });
+      })
+      .catch(err => console.error('Failed to load CSS files:', err));
+  </script>
+
+  <!-- Library scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tablesort@5.1.0/dist/tablesort.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tablesort@5.1.0/src/sorts/tablesort.number.min.js"></script>
+  
+  <!-- Material Symbols Outlined -->
+  <script>
+    // Icon names used throughout the UI
+    const iconNames = [
+      'computer', 'data_table', 'dark_mode', 'light_mode',
+      'memory', 'pause', 'play_arrow', 'speed',
+      'storage', 'warning', 'wifi', 'wifi_2_bar', 'wifi_off'
+    ];
+    // Sort icon names alphabetically for deterministic output and easy maintenance
+    // Also Google is really particular about this and it will NOT work without being in alphabetical order
+    const sortedIconNames = iconNames.slice().sort();
+    const iconParam = sortedIconNames.join(',');
+    const iconHref =
+      'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0'
+      + `&icon_names=${iconParam}&display=block`;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = iconHref;
+    document.head.appendChild(link);
+  </script>
+  
+  <!-- Microtip CSS tooltip library -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/microtip/microtip.css">
+
+  <!-- Theme initialization script -->
+  <script>
+    (function() {
+      const stored = localStorage.getItem('theme');
+      const isDark = stored === 'dark' || (!stored && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+</head>
+<body class="body-base">
+
+  <header class="header-container">
+    
+    <h1 class="page-title">
+      ESP IDF System Monitor
+    </h1>
+    
+    <div class="status-popup-container">
+      <div id="statusPopup" class="status-popup hidden" role="status" aria-live="polite" aria-atomic="true">
+        <span id="statusText" class="status-text"></span>
+      </div>
+    </div>
+    
+    <div id="wifiInfo" class="wifi-info-container" role="tooltip" data-microtip-position="bottom" aria-label="-">
+      <span class="wifi-info-ssid" id="wifiSsid">-</span>
+      <span class="material-symbols-outlined wifi-info-rssi-icon" id="wifiRssi">wifi</span>
+      <span class="wifi-info-address" id="wifiAddress">-</span>
+    </div>
+    
+    <button
+      id="themeToggle"
+      class="theme-switch"
+      aria-label="Switch between light and dark mode."
+      role="tooltip"
+      data-microtip-position="bottom-left"
+      type="button"
+    >
+      <span class="theme-switch-track">
+        <span class="theme-switch-thumb" id="themeSwitchThumb">
+          <span class="material-symbols-outlined theme-switch-icon theme-switch-icon-active" id="themeSwitchActiveIcon">light_mode</span>
+        </span>
+        <span class="material-symbols-outlined theme-switch-icon theme-switch-icon-inactive" id="themeSwitchInactiveIcon">dark_mode</span>
+      </span>
+    </button>
+    
+    <button
+      id="pauseToggle"
+      class="pause-toggle"
+      aria-label="Pause visual data updates while continuing to collect data in the background."
+      role="tooltip"
+      data-microtip-position="bottom-left"
+      type="button"
+    >
+      <span class="material-symbols-outlined pause-toggle-icon theme-panel-icon" id="pauseToggleIcon">pause</span>
+    </button>
+    
+  </header>
+
+  <main class="main-container">
+    <div class="layout-left-column">
+
+      <!-- CPU usage chart -->
+      <div class="panel chart">
+        <div class="panel-heading-container">
+          <h2 class="panel-heading">
+            <span 
+              class="material-symbols-outlined theme-panel-icon" 
+              aria-label="Real-time CPU usage per task over time to identify resource-intensive tasks and optimize scheduling."
+              role="tooltip"
+              data-microtip-position="bottom-right"
+            >
+              speed
+            </span>
+            CPU Usage
+          </h2>
+          <div class="panel-control-label-group">
+            <label
+              class="panel-control-label"
+              aria-label="Hide tasks from the CPU usage chart that average below the specified threshold percentage to focus on high CPU consumers."
+              role="tooltip"
+              data-microtip-position="bottom"
+            >
+              <input id="hideLowToggle" type="checkbox" checked aria-label="Hide processes averaging below threshold">
+              <span>Hide processes averaging below</span>
+            </label>
+            <label
+              class="panel-control-label"
+              aria-label="Threshold percentage for filtering low CPU usage tasks from the chart display."
+              role="tooltip"
+              data-microtip-position="bottom-left"
+            >
+              <input id="thresholdPct" class="chart-filter-input" type="number" value="0.05" min="0" max="10" step="0.05" aria-label="Threshold percentage for hiding low CPU usage tasks">
+              <span>%</span>
+            </label>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <div class="chart-container chart-container-cpu">
+            <canvas id="cpuChart" role="img" aria-label="CPU Usage Chart showing real-time CPU usage per task over time"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory usage chart -->
+      <div class="panel chart">
+        <div class="panel-heading-container">
+          <h2 class="panel-heading">
+            <span 
+              class="material-symbols-outlined theme-panel-icon" 
+              aria-label="Real-time memory usage per task over time to identify leaks, high consumers, and optimize allocation."
+              role="tooltip"
+              data-microtip-position="bottom-right"
+            >
+              memory
+            </span>
+            Memory Usage
+          </h2>
+        </div>
+        <div class="chart-wrapper">
+          <div class="chart-container chart-container-memory">
+            <canvas id="memoryChart" role="img" aria-label="Memory Usage Chart showing real-time memory usage per task over time"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo status boxes for CSS styling - not currently used -->
+      <div id="demo-boxes-for-styling" class="flex gap-4 hidden!">
+        <div class="status-popup status-charts-hover flex-1 static! top-auto! left-auto! -translate-x-0! -translate-y-0! transform-none!">
+          <span class="status-text">Info</span>
+        </div>
+        <div class="status-popup status-no-telemetry flex-1 static! top-auto! left-auto! -translate-x-0! -translate-y-0! transform-none!">
+          <span class="status-text">Warning</span>
+        </div>
+        <div class="status-popup status-reconnecting flex-1 static! top-auto! left-auto! -translate-x-0! -translate-y-0! transform-none!">
+          <span class="status-text">Reconnecting</span>
+        </div>
+        <div class="status-popup status-initializing flex-1 static! top-auto! left-auto! -translate-x-0! -translate-y-0! transform-none!">
+          <span class="status-text">Initializing</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="layout-right-column">
+
+      <!-- Task information Table -->
+      <div id="taskBox" class="panel">
+        <div class="panel-heading-container">
+          <h2 class="panel-heading">
+            <span 
+              class="material-symbols-outlined theme-panel-icon" 
+              aria-label="Detailed information about all running tasks including CPU usage, stack usage, core assignment, and priority for debugging scheduling issues."
+              role="tooltip"
+              data-microtip-position="bottom"
+            >
+              data_table
+            </span>
+            Task Information
+          </h2>
+          <label class="panel-control-label" aria-label="Hide ESP-IDF system tasks from the task table to focus on application tasks and reduce visual clutter." role="tooltip" data-microtip-position="bottom-left">
+            <input id="hideSystemTasksToggle" type="checkbox" checked aria-label="Hide System Tasks">
+            <span>Hide System Tasks</span>
+          </label>
+        </div>
+        <table id="taskTable" class="panel-table" aria-label="Task Information Table">
+          <thead>
+            <tr class="panel-table-header-row">
+              <th role="columnheader" data-sort="string" class="panel-table-header-cell text-left">Task Name</th>
+              <th role="columnheader" data-sort="number" class="panel-table-header-cell text-center">Core</th>
+              <th role="columnheader" data-sort="number" class="panel-table-header-cell text-center">Priority</th>
+              <th role="columnheader" data-sort="number" class="panel-table-header-cell text-right">CPU Usage</th>
+              <th role="columnheader" data-sort="number" class="panel-table-header-cell text-right">CPU %</th>
+              <th role="columnheader" data-sort="number" class="panel-table-header-cell text-right">Stack Usage</th>
+              <th role="columnheader" data-sort="number" class="panel-table-header-cell text-right">Stack %</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div> <!-- Task information Table -->
+
+      <!-- CPU information -->
+      <div id="cpuBox" class="panel">
+        <div class="panel-heading-container">
+          <h2 class="panel-heading">
+            <span 
+              class="material-symbols-outlined theme-panel-icon" 
+              aria-label="Overall CPU utilization and per-core usage percentages to understand system load and identify bottlenecks."
+              role="tooltip"
+              data-microtip-position="bottom"
+            >
+              memory
+            </span>
+            CPU Information
+          </h2>
+        </div>
+        <div class="info-content-container">
+          <div class="info-row">
+            <span class="info-label">CPU Overall:</span>
+            <div class="progress-container progress-container-lg flex-1">
+              <div class="progress-bar" id="cpuOverallBar"></div>
+            </div>
+            <span id="cpuOverall" class="info-value">- %</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Core 0:</span>
+            <div class="progress-container progress-container-lg flex-1">
+              <div class="progress-bar" id="cpuC0Bar"></div>
+            </div>
+            <span id="cpuC0" class="info-value">- %</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Core 1:</span>
+            <div class="progress-container progress-container-lg flex-1">
+              <div class="progress-bar" id="cpuC1Bar"></div>
+            </div>
+            <span id="cpuC1" class="info-value">- %</span>
+          </div>
+        </div>
+      </div> <!-- CPU information -->
+
+      <!-- Memory & Storage Information -->
+      <div id="memoryStorageBox" class="panel">
+        <div class="panel-heading-container">
+          <h2 class="panel-heading">
+            <span 
+              class="material-symbols-outlined theme-panel-icon" 
+              aria-label="Memory and storage information including DRAM, PSRAM, and Flash partition details."
+              role="tooltip"
+              data-microtip-position="bottom"
+            >
+              memory
+            </span>
+            Memory & Storage Information
+          </h2>
+          <label 
+            id="flashWarningIcon" 
+            class="panel-control-label theme-warning-label hidden" 
+            aria-label="Flash partition size warning"
+            role="tooltip"
+            data-microtip-position="bottom-left"
+          >
+            <span class="material-symbols-outlined theme-warning-icon">warning</span>
+            <span class="theme-warning-label-text">Warning</span>
+          </label>
+        </div>
+        <div class="info-content-container gap-0!">
+          
+          <!-- DRAM Section -->
+          <div class="memory-section">
+            <div class="memory-section-body">
+              <div class="info-row">
+                <abbr
+                  class="info-label"
+                  aria-label="Dynamic Random Access Memory is the main system RAM used for program execution, stack, and heap allocation."
+                  role="tooltip"
+                  data-microtip-position="bottom-left"
+                >DRAM</abbr>
+                <div class="progress-container progress-container-lg flex-1">
+                  <div class="progress-bar" id="dramUsedBar"></div>
+                  <div class="dram-fragmentation-bar" id="dramFragmentationBar"></div>
+                </div>
+                <span id="dramUsedPct" class="info-value">- %</span>
+              </div>
+              <div class="info-stats-container">
+                <span class="info-stat-item">Used: <span id="dramUsed" class="info-stat-value">-</span></span>
+                <span class="info-stat-item">Free: <span id="dramFree" class="info-stat-value">-</span></span>
+                <span class="info-stat-item">Largest Block: <span id="dramLargest" class="info-stat-value">-</span></span>
+                <span class="info-stat-item">Total: <span id="dramTotal" class="info-stat-value">-</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PSRAM Section (conditionally visible) -->
+          <div id="psramSection" class="memory-section hidden">
+            <div class="memory-section-body">
+              <div class="info-row">
+                <abbr
+                  class="info-label"
+                  aria-label="Pseudo-Static Random Access Memory is external RAM available on some ESP chip variants, providing additional memory capacity beyond DRAM."
+                  role="tooltip"
+                  data-microtip-position="bottom-left"
+                >PSRAM</abbr>
+                <div class="progress-container progress-container-lg flex-1">
+                  <div class="progress-bar" id="psramUsedBar"></div>
+                </div>
+                <span id="psramUsedPct" class="info-value">- %</span>
+              </div>
+              <div class="info-stats-container">
+                <span class="info-stat-item">Used: <span id="psramUsed" class="info-stat-value">-</span></span>
+                <span class="info-stat-item">Free: <span id="psramFree" class="info-stat-value">-</span></span>
+                <span class="info-stat-item">Total: <span id="psramTotal" class="info-stat-value">-</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flash Section -->
+          <div id="flashSection" class="memory-section">
+            <div class="memory-section-body">
+              <div class="info-row">
+                <abbr
+                  class="info-label"
+                  aria-label="Flash memory partition information showing total flash size, partition usage, and individual partition details for storage management."
+                  role="tooltip"
+                  data-microtip-position="bottom-left"
+                >Partitions</abbr>
+                <div class="progress-container progress-container-lg flex-1">
+                  <div class="progress-bar" id="flashPartitionsBar"></div>
+                </div>
+                <span id="flashPartitionsPct" class="info-value">- %</span>
+              </div>
+              <div class="info-stats-container">
+                <span class="info-stat-item">Partitions: <span id="flashPartitions" class="info-stat-value">-</span></span>
+                <span class="info-stat-item">Unused: <span id="flashUnused" class="info-stat-value">-</span></span>
+                <span class="info-stat-item">Total: <span id="flashTotal" class="info-stat-value">-</span></span>
+              </div>
+              <div id="partitionsContainer" class="memory-section-body mt-1"></div>
+            </div>
+          </div>
+
+        </div>
+      </div> <!-- Memory & Storage Information -->
+
+      <!-- Hardware information (two side-by-side grouped tables) -->
+      <div id="hwInfoBox" class="panel">
+        <div class="panel-heading-container">
+          <h2 class="panel-heading">
+            <span 
+              class="material-symbols-outlined theme-panel-icon" 
+              aria-label="ESP-IDF chip specifications, firmware version, and memory configuration for identifying capabilities and debugging compatibility issues."
+              role="tooltip"
+              data-microtip-position="bottom"
+            >
+              computer
+            </span>
+            Hardware Information
+          </h2>
+        </div>
+        <div class="hardware-tables-container">
+          <!-- Left Table: Chip/CPU info -->
+          <table class="hardware-table">
+            <tbody>
+              <tr>
+                <td class="hardware-table-label-cell">Chip Model</td>
+                <td id="hwChipModel" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr>
+                <td class="hardware-table-label-cell">CPU Cores</td>
+                <td id="hwChipCores" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr>
+                <td class="hardware-table-label-cell">Core Speed</td>
+                <td id="hwChipCpuFreq" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr>
+                <td class="hardware-table-label-cell">Features</td>
+                <td id="hwChipFeatures" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr>
+                <td class="hardware-table-label-cell">ESP-IDF Version</td>
+                <td id="hwIdfVersion" class="hardware-table-value-cell">-</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Right Table: Build/Memory info -->
+          <table class="hardware-table">
+            <tbody>
+              <tr>
+                <td class="hardware-table-label-cell">DRAM Total</td>
+                <td id="hwDramTotal" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr id="hwPsramRow" class="hidden">
+                <td class="hardware-table-label-cell">PSRAM Total</td>
+                <td id="hwPsramTotal" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr id="hwPsramSpeedRow" class="hidden">
+                <td class="hardware-table-label-cell">PSRAM Speed</td>
+                <td id="hwPsramSpeed" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr>
+                <td class="hardware-table-label-cell">Compile Time</td>
+                <td id="hwCompileTime" class="hardware-table-value-cell">-</td>
+              </tr>
+              <tr>
+                <td class="hardware-table-label-cell">Boot Time</td>
+                <td id="hwBootTime" class="hardware-table-value-cell">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- Hardware information -->
+
+    </div> <!-- right column -->
+
+  </main> <!-- main container -->
+
+  <footer class="footer-container">
+    <span id="samplingConfigInfo">? samples, ? ms interval</span> - Based on
+    <a href="https://github.com/jameszah/ESP32-Task-Manager" target="_blank" class="footer-link">
+        jameszah/ESP32-Task-Manager
+    </a>
+  </footer>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/theme.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/charts.js"></script>
+  <script src="/js/table.js"></script>
+  <script src="/js/app.js"></script>
+
+</body>
+</html>

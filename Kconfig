@@ -1,0 +1,32 @@
+menu "SysMon Configuration"
+
+    config SYSMON_HTTPD_SERVER_PORT
+        int "HTTP server port"
+        range 1 65535
+        default 8080
+        help
+            Port number for the sysmon HTTP server.
+
+    config SYSMON_CPU_SAMPLING_INTERVAL_MS
+        int "CPU sampling interval (ms)"
+        range 100 10000
+        default 1000
+        help
+            Interval in milliseconds between CPU usage samples.
+
+    config SYSMON_SAMPLE_COUNT
+        int "Number of samples in history"
+        range 10 1000
+        default 100
+        help
+            Number of samples to keep in the history buffer.
+
+    config SYSMON_HTTPD_CTRL_PORT
+        int "HTTP control port"
+        range 1 65535
+        default 32768
+        help
+            Control port for the HTTP server (used when multiple servers are present).
+
+endmenu
+

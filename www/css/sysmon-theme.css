@@ -1,0 +1,866 @@
+/*********************************************************************************************
+ * Root Elements
+ * - root-container, body-base
+ **********************************************************************************************/
+
+.root-container {
+  @apply 
+    h-full 
+    overflow-x-hidden
+    theme-bg-body;
+}
+
+.body-base {
+  @apply 
+    m-0 p-2 sm:p-4 
+    min-h-screen 
+    font-sans 
+    overflow-x-hidden
+    theme-bg-body;
+}
+
+/*********************************************************************************************
+ * Header Section
+ * - header-container, page-title, status-popup-container, status-popup, status-text, theme-switch
+ **********************************************************************************************/
+
+.header-container {
+  @apply 
+    flex flex-wrap 
+    items-center justify-between gap-2 
+    mb-3;
+}
+
+.page-title {
+  @apply 
+    text-xl sm:text-2xl font-bold 
+    theme-text;
+}
+
+.status-popup-container {
+  @apply 
+    flex 
+    flex-1 items-center justify-center 
+    min-w-0;
+}
+
+/* Status popup base styles - note: additional variant classes defined below */
+.status-popup {
+  
+  @apply 
+    fixed top-3 left-1/2 z-50
+    px-4 py-2 
+    rounded-md shadow-lg 
+    transform -translate-x-1/2 
+    transition-all duration-300 ease-in-out
+    leading-tight;
+  
+  &.status-charts-hover {
+    @apply 
+      border 
+      theme-status-info;
+  }
+
+  &.status-no-telemetry {
+    @apply 
+      border 
+      theme-status-warning;
+  }
+
+  &.status-reconnecting {
+    @apply 
+      border 
+      theme-status-reconnecting;
+  }
+
+  &.status-initializing {
+    @apply 
+      border 
+      theme-status-initializing;
+  }
+
+  &.status-paused {
+    @apply 
+      border 
+      theme-status-info;
+  }
+  
+  &.hidden {
+    @apply 
+      hidden 
+      opacity-0 
+      -translate-y-[10px];
+  }
+}
+
+.status-text {
+  @apply 
+    text-sm font-medium;
+}
+
+/* WiFi info container in header */
+.wifi-info-container {
+  @apply 
+    flex flex-wrap 
+    items-center gap-3 
+    px-3 py-1.5 
+    mr-2
+    rounded-md 
+    theme-bg-panel 
+    border 
+    theme-border-color
+    theme-box-shadow
+    text-xs;
+  
+  /* Hover effect: outline ring */
+  &:hover {
+    @apply theme-outline-style theme-outline-color;
+  }
+}
+
+.wifi-info-ssid {
+  @apply 
+    font-medium 
+    theme-text;
+}
+
+.wifi-info-rssi-icon {
+  @apply 
+    text-xs!
+    theme-text!;
+}
+
+.wifi-info-address {
+  @apply 
+    font-mono 
+    theme-text-secondary;
+}
+
+/* Theme switch toggle (button, track, thumb, icons) with light/dark support */
+.theme-switch {
+  @apply 
+    relative 
+    p-0 
+    border-none bg-transparent 
+    cursor-pointer outline-none
+    rounded-full
+    mr-1;
+  
+  /* Hover effect: outline ring */
+  &:hover {
+    @apply theme-outline-style theme-outline-color;
+  }
+
+  /* Track for theme switch */
+  .theme-switch-track {
+    @apply 
+      flex 
+      items-center 
+      relative w-14 h-7 
+      p-0.5 
+      rounded-full 
+      transition-colors duration-200 
+      theme-box-shadow
+      theme-bg-panel
+      border
+      theme-border-color;
+
+    /* Thumb for sliding effect */
+    .theme-switch-thumb {
+      @apply 
+        absolute 
+        flex items-center justify-center 
+        w-6 h-6 
+        rounded-full shadow 
+        transform translate-x-0 
+        transition-transform duration-200
+        theme-box-shadow
+        theme-bg-switch-thumb;
+
+      .dark & {
+        @apply translate-x-7;
+      }
+
+      /* Active icon inside thumb */
+      .material-symbols-outlined.theme-switch-icon.theme-switch-icon-active {
+        @apply 
+          text-base leading-none 
+          opacity-100 
+          transition-opacity duration-200
+          text-white;
+      }
+    }
+
+    /* Inactive icon, outside thumb, for both themes */
+    .material-symbols-outlined.theme-switch-icon.theme-switch-icon-inactive {
+      @apply 
+        absolute right-1.5 
+        text-base leading-none 
+        opacity-40 
+        transition-opacity duration-200
+        text-gray-700;
+
+      .dark & {
+        @apply left-1.5 right-auto opacity-40 text-white;
+      }
+    }
+  }
+}
+
+/* Pause toggle button (icon-only) with light/dark support */
+.pause-toggle {
+  @apply 
+    relative 
+    p-0 
+    border-none bg-transparent 
+    cursor-pointer outline-none
+    flex items-center justify-center
+    w-7 h-7;
+}
+
+.material-symbols-outlined.pause-toggle-icon {
+  @apply 
+    p-[4px]
+    text-base leading-none
+    rounded-full border
+    theme-bg-panel
+    theme-border-color
+    theme-box-shadow;
+  
+  /* Hover effect: outline ring */
+  &:hover {
+    @apply theme-outline-style theme-outline-color cursor-pointer;
+  }
+}
+
+
+/*********************************************************************************************
+ * Main Container
+ * - main-container
+ **********************************************************************************************/
+
+.main-container {
+  @apply 
+    flex flex-col lg:flex-row 
+    items-start gap-4 lg:gap-6 
+    mb-3;
+}
+
+/* Panel icon structural styles - icons already have theme-panel-icon class in HTML */
+.panel-heading .material-symbols-outlined.theme-panel-icon {
+  @apply 
+    p-1 -mt-0.5 -mb-1 mr-1 -ml-0.5
+    text-lg leading-5 align-bottom
+    w-7 h-7
+    theme-box-shadow
+    rounded border;
+  
+  /* Hover effect: outline ring */
+  &:hover {
+    @apply theme-outline-style theme-outline-color cursor-help;
+  }
+}
+
+/*********************************************************************************************
+ * Left Column (Charts)
+ * - layout-left-column, chart (modifier for panel), chart-wrapper, chart-container, chart-filter-input
+ **********************************************************************************************/
+
+.layout-left-column {
+  @apply 
+    flex flex-col 
+    w-full h-[calc(100vh-8rem)] lg:flex-[1_1_60%] lg:min-w-[350px] lg:max-h-[90vh] 
+    gap-4;
+}
+
+/* Chart modifier for panel - adds flex layout and overflow handling */
+.chart {
+  @apply 
+    flex flex-1 flex-col 
+    min-h-0 
+    overflow-hidden;
+  
+  .panel-heading {
+    @apply flex-shrink-0;
+  }
+}
+
+.chart-wrapper {
+  @apply 
+    flex flex-1 flex-col 
+    min-h-0;
+}
+
+/* Chart.js responsive containers */
+.chart-container {
+  @apply 
+    relative 
+    w-full h-full min-h-[200px];
+  
+  canvas {
+    @apply 
+      block 
+      max-w-full max-h-full;
+    /* Ensure crisp text rendering on high-DPI displays */
+    /* Note: Do not set explicit width/height via CSS - Chart.js handles this internally */
+    /* to account for device pixel ratio and prevent blurry text */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* Prevent blurry text by ensuring proper font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    @apply min-h-[250px];
+  }
+  @media (max-width: 480px) {
+    @apply min-h-[200px];
+  }
+}
+
+.chart-filter-input {
+  @apply 
+    w-[40px] 
+    border 
+    theme-bg-input 
+    theme-border-color 
+    theme-text;
+}
+
+/*********************************************************************************************
+ * Right Column (Panels)
+ * - layout-right-column, panel, panel-heading, panel-heading-container, panel-control-label
+ **********************************************************************************************/
+
+.layout-right-column {
+  @apply 
+    flex flex-col 
+    w-full lg:flex-[1_1_40%] lg:min-w-[350px] 
+    gap-4;
+}
+
+.panel {
+  @apply 
+    p-2 
+    rounded-md 
+    border 
+    theme-box-shadow
+    theme-bg-panel 
+    theme-border-color 
+    theme-text;
+}
+
+.panel-heading {
+  @apply 
+    mb-2 
+    text-sm font-semibold 
+    theme-text
+    inline-block;
+}
+
+.panel-heading-container {
+  @apply 
+    flex 
+    items-center justify-between 
+    mb-3;
+  
+  .panel-heading {
+    @apply mb-0;
+  }
+}
+
+.panel-control-label {
+  @apply 
+    flex 
+    items-center gap-1 
+    text-xs 
+    cursor-pointer 
+    theme-text
+    px-2 py-1
+    -mt-2 -mb-2
+    rounded-md
+    border
+    bg-transparent
+    transition-colors duration-150
+    theme-border-color
+    theme-box-shadow;
+  
+  @apply theme-outline-color;
+  
+  /* Hover effect: outline ring */
+  &:hover {
+    @apply theme-outline-style theme-outline-color;
+  }
+  
+  input[type="checkbox"] {
+    @apply 
+      cursor-pointer 
+      accent-blue-600;
+    
+    .dark & {
+      @apply accent-blue-400;
+    }
+  }
+}
+
+.panel-control-label-group {
+  @apply 
+    flex 
+    items-center gap-2;
+}
+
+/* Warning label - uses status warning colors for border, background, and text */
+.panel-control-label.theme-warning-label {
+  @apply 
+    py-0.5
+    theme-box-shadow
+    theme-status-warning;
+  
+  /* Light theme: border color matches warning text color, hover ring uses theme color */
+  border-color: var(--color-theme-status-warning-text);
+  
+  &:hover {
+    @apply theme-outline-style;
+    outline-color: var(--color-theme-warning-label-hover-outline);
+  }
+  
+  /* Dark theme: use default status warning colors */
+  .dark & {
+    border-color: var(--color-theme-status-warning-border);
+    
+    &:hover {
+      outline-color: var(--color-theme-warning-label-hover-outline);
+    }
+  }
+  
+  /* Warning label icon - matches panel icon text size but no border/background */
+  .material-symbols-outlined.theme-warning-icon {
+    @apply 
+      text-lg leading-5 align-bottom;
+  }
+
+  /* Warning label text - bold */
+  .theme-warning-label-text {
+    @apply font-bold;
+  }
+}
+
+/*********************************************************************************************
+ * Task Information Panel
+ * - panel-table, panel-table-header-row, panel-table-header-cell, panel-table-cell, hide-system-tasks, system-task, tablesort
+ **********************************************************************************************/
+
+.panel-table {
+  @apply 
+    w-full 
+    mt-0 
+    border-collapse 
+    theme-bg-table;
+}
+
+.panel-table-header-row {
+  @apply theme-bg-table-header;
+}
+
+.panel-table-header-cell {
+  @apply 
+    py-0.5 px-1.5 
+    text-xs 
+    border 
+    theme-border-color 
+    theme-text;
+}
+
+.panel-table-cell {
+  @apply 
+    py-0.5 px-1.5 
+    text-xs 
+    border 
+    theme-border-color 
+    theme-text;
+}
+
+/* Narrow columns for core, priority, CPU %, and Stack % */
+.panel-table-cell[data-column="core"],
+.panel-table-cell[data-column="priority"],
+.panel-table-cell[data-column="cpu-pct"],
+.panel-table-cell[data-column="stack-usage-pct"] {
+  @apply w-[70px] min-w-[70px] max-w-[70px];
+}
+
+/* Partition table column widths */
+.panel-table-cell[data-column="partition-name"] {
+  @apply w-[90px] min-w-[90px] max-w-[90px];
+}
+
+.panel-table-cell[data-column="percent-value"] {
+  @apply w-[70px] min-w-[70px] max-w-[70px];
+}
+
+/* System task filter - hide system tasks when hide-system-tasks class is on table */
+#taskTable.hide-system-tasks tr.system-task {
+  display: none;
+}
+
+/* Tablesort styling with Tailwind CSS and grouping for light/dark */
+
+th[role="columnheader"]:not(.no-sort) {
+  @apply 
+    cursor-pointer select-none;
+  
+  &::after {
+    content: '';
+    @apply 
+      float-right 
+      mt-2 
+      border-solid border-transparent 
+      invisible opacity-0 
+      select-none;
+
+    /* Indicator triangle for sort: 0 4px 4px, border-bottom visible */
+    border-width: 0 4px 4px;
+    border-bottom-style: solid;
+    border-color: var(--color-theme-sort-indicator) transparent;
+  }
+
+  /* Focus or hover: highlight sort indicator */
+  &:focus::after, 
+  &:hover::after {
+    @apply 
+      visible opacity-100;
+  }
+}
+
+/* When actively sorted on any direction: show indicator faded */
+th[aria-sort]:not(.no-sort)::after {
+  @apply 
+    visible opacity-40;
+}
+
+/* Ascending: change triangle orientation */
+th[aria-sort="ascending"]:not(.no-sort)::after {
+  border-bottom: none !important;
+  border-width: 4px 4px 0 !important;
+}
+
+/*********************************************************************************************
+ * CPU/DRAM/PSRAM Information Panels
+ * - info-content-container, info-row, info-label, info-value, info-stats-container, info-stat-item, info-stat-value
+ * - progress-container, progress-bar, progress-bar-low, progress-bar-medium, progress-bar-high
+ * - dram-fragmentation-bar
+ **********************************************************************************************/
+
+.info-content-container {
+  @apply 
+    flex flex-col 
+    gap-1.5
+    mt-1
+    text-xs
+}
+
+/* Memory and storage sub-panels */
+#memoryStorageBox > .info-content-container {
+  @apply
+    divide-y
+    divide-gray-300
+    dark:divide-gray-700;
+}
+
+.info-row {
+  @apply 
+    flex 
+    items-center 
+    gap-2;
+}
+
+.info-label {
+  @apply 
+    min-w-[80px];
+}
+
+.info-value {
+  @apply 
+    min-w-[50px] 
+    text-right font-bold;
+}
+
+.info-stats-container {
+  @apply 
+    flex 
+    items-center justify-between 
+    px-1 
+    text-xs 
+    theme-text-secondary;
+}
+
+.info-stat-item {
+  @apply 
+    text-xs 
+    theme-text-secondary;
+}
+
+.info-stat-value {
+  @apply 
+    font-bold 
+    theme-text;
+}
+
+/* Override text color when warning class is applied */
+.info-stat-value.theme-warning-text {
+  @apply theme-warning-text!;
+}
+
+/*********************************************************************************************
+ * Memory Section Styles
+ * - memory-section, memory-section-body
+ **********************************************************************************************/
+
+.memory-section {
+  @apply 
+    mb-1 pt-1 pb-2;
+}
+
+.memory-section:last-child {
+  @apply 
+    mb-0;
+}
+
+.memory-section-body {
+  @apply 
+    flex flex-col 
+    gap-1.5;
+}
+
+.memory-section-body .info-label {
+  @apply 
+    font-bold;
+}
+
+/* Progress Bar: base container and bar classes */
+.progress-container {
+  @apply 
+    relative 
+    overflow-hidden 
+    rounded-md 
+    cursor-pointer
+    theme-bg-progress
+    theme-progress-container-shadow;
+  
+  &.flex-1 {
+    @apply flex-1;
+  }
+  
+  /* Hover effect: outline ring on the base container and the progress bar */
+  &:hover {
+    @apply theme-outline-style theme-outline-color;
+  }
+  
+  /* Remove overflow-hidden from containers with tooltips to allow tooltip pseudo-elements to appear */
+  /* The progress bar will still be clipped by border-radius */
+  &[role="tooltip"] {
+    overflow: visible;
+  }
+}
+
+/* Progress bar size modifiers */
+.progress-container-sm {
+  @apply 
+    h-3 
+    rounded-sm;
+}
+
+.progress-container-lg {
+  @apply 
+    h-3 
+    rounded-md;
+}
+
+.progress-bar {
+  @apply 
+    h-full w-0 
+    rounded-md 
+    transition-[width,background-color,box-shadow,filter] duration-300 ease-in-out
+    min-w-[3%]
+    theme-progress-low-bg;
+}
+
+/* Match progress bar border radius to container size */
+.progress-container-sm .progress-bar {
+  @apply rounded-sm min-w-[5%];
+}
+
+.progress-container-lg .progress-bar {
+  @apply rounded-md;
+}
+
+/* Progress bar state variants - applied via JavaScript */
+.progress-bar-low {
+  @apply
+    theme-progress-low-bg
+    theme-progress-low-shadow;
+}
+
+.progress-bar-medium {
+  @apply
+    theme-progress-medium-bg
+    theme-progress-medium-shadow;
+}
+
+.progress-bar-high {
+  @apply
+    theme-progress-high-bg
+    theme-progress-high-shadow;
+}
+
+/* DRAM Fragmentation Bar: shows fragmented memory section atop DRAM bar */
+.dram-fragmentation-bar {
+  @apply 
+    absolute right-0 top-0 z-[5] 
+    h-full w-0 
+    rounded-md 
+    opacity-70 
+    transition-[width] duration-300 ease-in-out
+    theme-dram-fragmentation-shadow
+    theme-dram-fragmentation-bg;
+}
+
+/* DRAM used value: color highlight */
+#dramUsed {
+  @apply theme-memory-used-text;
+}
+
+/* DRAM largest block value: color highlight */
+#dramLargest {
+  @apply theme-dram-fragmentation-text;
+}
+
+
+/* PSRAM Used Text value: color highlight */
+#psramUsed {
+  @apply theme-memory-used-text;
+}
+
+/*********************************************************************************************
+ * Hardware Information Panel
+ * - hardware-tables-container, hardware-table, hardware-table-label-cell, hardware-table-value-cell
+ **********************************************************************************************/
+
+.hardware-tables-container {
+  @apply 
+    flex flex-wrap 
+    gap-4;
+}
+
+.hardware-table {
+  @apply 
+    flex-1 min-w-[220px] max-w-[340px] 
+    mt-0 mb-1 
+    border-collapse 
+    text-xs 
+    theme-bg-table 
+    theme-text;
+}
+
+.hardware-table-label-cell {
+  @apply 
+    py-0.5 px-1.5 
+    text-xs font-semibold 
+    border 
+    theme-border-color 
+    theme-text;
+}
+
+.hardware-table-value-cell {
+  @apply 
+    py-0.5 px-1.5 
+    text-xs 
+    border 
+    theme-border-color 
+    theme-text;
+}
+
+/*********************************************************************************************
+ * Footer
+ * - footer-container, footer-link
+ **********************************************************************************************/
+
+.footer-container {
+  @apply 
+    text-right text-xs 
+    theme-text-footer;
+}
+
+.footer-link {
+  @apply underline;
+  color: var(--color-theme-link);
+
+  &:hover {
+    color: var(--color-theme-link-hover);
+  }
+}
+
+/*********************************************************************************************
+ * Utility Classes
+ * - stack-low, abbr, hidden
+ **********************************************************************************************/
+
+.stack-low {
+  color: var(--color-theme-stack-low);
+  font-weight: bold;
+}
+
+.hidden {
+  @apply hidden;
+}
+
+/* Abbr element styling - indicates hoverable tooltip */
+abbr {
+  @apply 
+    underline decoration-dotted decoration-1 underline-offset-2 
+    border-b-0 
+    cursor-help;
+
+  &:hover {
+    @apply 
+      underline decoration-dotted decoration-[1.5px] 
+      cursor-help;
+  }
+
+  .dark & {
+    text-decoration-color: var(--color-theme-abbr-decoration);
+  }
+  .dark &:hover {
+    text-decoration-color: var(--color-theme-abbr-decoration-hover);
+  }
+}
+
+/*********************************************************************************************
+ * Microtip CSS tooltip library
+  **********************************************************************************************/
+[aria-label][role~="tooltip"] {
+  @apply
+    cursor-help!;
+}
+/* tooltip arrow */
+[aria-label][role~="tooltip"]::before {
+  @apply
+    mt-[10px]!
+    h-[3px]!
+    w-[9px]!;
+}
+/* tooltip content */
+[aria-label][role~="tooltip"]::after {
+  @apply
+    rounded-sm min-w-[5%]! max-w-[300px]! w-[250px]!
+    break-words! whitespace-normal!
+    z-10!
+    text-left!
+    border! border-1!
+    theme-bg-body!
+    theme-box-shadow!
+    theme-border-color!
+    theme-text!;
+  font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji')
+}

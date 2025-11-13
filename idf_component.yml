@@ -1,0 +1,5 @@
+version: "1.0.0"
+description: "Real-time system monitor for ESP-IDF projects with web-based dashboard for CPU, stack, and memory monitoring"
+url: "https://github.com/mccannex/SysMon"
+license: "MIT"
+

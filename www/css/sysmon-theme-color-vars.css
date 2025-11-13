@@ -1,0 +1,277 @@
+/*******************************
+ * CSS Color Variables
+ * - Theme colors for light/dark mode
+ ********************************/
+
+:root {
+  /* 
+   * Base color palette - reusable theme colors
+   * These reference Tailwind color scale values directly (e.g., --color-green-500)
+   * Dependency: None (root level, references Tailwind CSS variables)
+   */
+  --color-theme-green  : var(--color-green-500);
+  --color-theme-red    : var(--color-red-800);
+  --color-theme-yellow : var(--color-yellow-400);
+  --color-theme-blue   : var(--color-blue-800);
+  --color-theme-orange : var(--color-orange-800);
+  --color-theme-cyan   : var(--color-cyan-300);
+  --color-theme-violet : var(--color-violet-500);
+  
+  /* 
+   * Semantic status colors - chained from base palette
+   * Dependency: Base color palette (--color-theme-*)
+   * Used by: Status popup variants, special element colors
+   */
+  --color-theme-success : var(--color-theme-green);
+  --color-theme-warning : var(--color-theme-yellow);
+  --color-theme-error   : var(--color-theme-red);
+  --color-theme-info    : var(--color-theme-blue);
+  
+  /* 
+   * Background colors - body, panels, tables, inputs, progress containers, theme switch
+   * Dependency: Tailwind color scale values (--color-slate-*, --color-gray-*)
+   * Used by: Theme utility classes (theme-bg-*)
+   */
+  --color-theme-body-background         : var(--color-slate-200);
+  --color-theme-panel-background        : var(--color-gray-50);
+  --color-theme-table-background        : var(--color-slate-50);
+  --color-theme-table-header-background : var(--color-gray-200);
+  --color-theme-input-background        : var(--color-slate-50);
+  --color-theme-switch-track-background : var(--color-gray-300);
+  
+  /* 
+   * Text colors - primary, secondary, footer
+   * Dependency: Tailwind color scale values (--color-gray-*)
+   * Used by: Theme utility classes (theme-text-*)
+   */
+  --color-theme-text-primary   : var(--color-gray-900);
+  --color-theme-text-secondary : var(--color-gray-600);
+  --color-theme-text-footer    : var(--color-gray-400);
+  
+  /* 
+   * Border colors - standard borders for panels, tables, inputs
+   * Dependency: Tailwind color scale values (--color-gray-*)
+   * Used by: Theme utility class (theme-border-color)
+   */
+  --color-theme-border : var(--color-gray-300);
+  
+  /* 
+   * Shadow colors - box shadows
+   * Dependency: Tailwind color scale values (--color-slate-*)
+   * Used by: Theme utility class (theme-box-shadow)
+   */
+  --color-theme-box-shadow : var(--color-slate-400);
+  
+  /* 
+   * Panel icon colors - background, text, border for panel heading icons
+   * Dependency: Tailwind color scale values (--color-slate-*, --color-gray-*)
+   * Used by: Theme utility class (theme-panel-icon)
+   */
+  --color-theme-panel-icon-background : var(--color-slate-200);
+  --color-theme-panel-icon-text       : var(--color-gray-900);
+  --color-theme-panel-icon-border     : var(--color-gray-300);
+  
+  /* 
+   * Interactive element colors - links, theme switch, outline
+   * Dependency: Tailwind color scale values (--color-blue-*)
+   * Used by: Footer links, theme switch thumb, focus outlines
+   */
+  --color-theme-link         : var(--color-blue-600);
+  --color-theme-link-hover   : var(--color-blue-800);
+  --color-theme-switch-thumb : var(--color-blue-500);
+  --color-theme-outline      : var(--color-blue-500);
+  
+  /* 
+   * Status popup colors - info, warning, reconnecting, initializing variants
+   * Dependency: Tailwind color scale values (--color-blue-*, --color-yellow-*, etc.)
+   * Used by: Theme utility classes (theme-status-*)
+   * Usage: Applied via JavaScript to status popup based on connection state
+   *   - info: Normal operation, chart hover tooltips
+   *   - warning: No telemetry data available
+   *   - reconnecting: Connection lost, attempting to reconnect
+   *   - initializing: Initial page load, establishing connection
+   */
+  --color-theme-status-info-background         : var(--color-blue-50);
+  --color-theme-status-info-text               : var(--color-blue-700);
+  --color-theme-status-info-border             : var(--color-blue-500);
+  --color-theme-status-warning-background      : var(--color-yellow-50);
+  --color-theme-status-warning-text            : var(--color-yellow-500);
+  --color-theme-status-warning-border          : var(--color-yellow-400);
+  --color-theme-status-reconnecting-background : var(--color-red-50);
+  --color-theme-status-reconnecting-text       : var(--color-red-700);
+  --color-theme-status-reconnecting-border     : var(--color-red-500);
+  --color-theme-status-initializing-background : var(--color-gray-50);
+  --color-theme-status-initializing-text       : var(--color-gray-700);
+  --color-theme-status-initializing-border     : var(--color-gray-500);
+  
+  /* 
+   * Progress bar colors - shared states for CPU, DRAM, PSRAM
+   * Dependency: Base color palette (--color-theme-*), Tailwind color scale values
+   * Used by: Theme utility classes (theme-progress-*-bg)
+   * Usage: Applied via JavaScript based on usage percentage thresholds
+   *   - low: < 50% usage (green)
+   *   - medium: 50-80% usage (yellow)
+   *   - high: > 80% usage (red)
+   */
+  --color-theme-progress-container-background : var(--color-gray-200);
+  --color-theme-progress-container-shadow     : var(--color-gray-400);
+  --color-theme-progress-low                  : var(--color-green-500);
+  --color-theme-progress-low-shadow           : var(--color-green-300);
+  --color-theme-progress-medium               : var(--color-yellow-400);
+  --color-theme-progress-medium-shadow        : var(--color-yellow-600);
+  --color-theme-progress-high                 : var(--color-red-500);
+  --color-theme-progress-high-shadow          : var(--color-red-300);
+  --color-theme-dram-fragmentation            : var(--color-blue-500);
+  --color-theme-dram-fragmentation-shadow     : var(--color-blue-300);
+  --color-theme-memory-used-text              : var(--color-theme-green);
+  
+  /* 
+   * Special element colors - stack low warning, abbr decoration, tablesort indicator, warning label
+   * Dependency: Semantic status colors (--color-theme-error), Tailwind color scale values
+   * Used by: Task table stack usage warnings, abbreviation tooltips, table sort indicators, warning label hover
+   */
+  --color-theme-stack-low                   : var(--color-red-500);
+  --color-theme-abbr-decoration             : var(--color-gray-400);
+  --color-theme-abbr-decoration-hover       : var(--color-gray-600);
+  --color-theme-sort-indicator              : var(--color-gray-600);
+  --color-theme-warning-label-hover-outline : var(--color-yellow-600);
+}
+
+.dark {
+  /* 
+   * Base color palette - reusable theme colors (dark mode)
+   * These reference Tailwind color scale values directly (e.g., --color-green-400)
+   * Dependency: None (root level, references Tailwind CSS variables)
+   * Note: Dark mode uses lighter shades for better contrast on dark backgrounds
+   */
+  --color-theme-green  : var(--color-green-400);
+  --color-theme-red    : var(--color-red-400);
+  --color-theme-yellow : var(--color-yellow-700);
+  --color-theme-blue   : var(--color-blue-400);
+  --color-theme-orange : var(--color-orange-400);
+  --color-theme-cyan   : var(--color-cyan-300);
+  --color-theme-violet : var(--color-violet-300);
+  
+  /* 
+   * Semantic status colors - chained from base palette (dark mode)
+   * Dependency: Base color palette (--color-theme-*)
+   * Used by: Status popup variants, special element colors
+   */
+  --color-theme-success : var(--color-theme-green);
+  --color-theme-warning : var(--color-theme-yellow);
+  --color-theme-error   : var(--color-theme-red);
+  --color-theme-info    : var(--color-theme-blue);
+  
+  /* 
+   * Background colors - body, panels, tables, inputs, progress containers, theme switch (dark mode)
+   * Dependency: Tailwind color scale values (--color-gray-*, --color-slate-*)
+   * Used by: Theme utility classes (theme-bg-*)
+   * Note: Dark mode uses darker shades (800-900 range) for backgrounds
+   */
+  --color-theme-body-background         : var(--color-gray-900);
+  --color-theme-panel-background        : var(--color-gray-800);
+  --color-theme-table-background        : var(--color-gray-900);
+  --color-theme-table-header-background : var(--color-gray-800);
+  --color-theme-input-background        : var(--color-gray-800);
+  --color-theme-switch-track-background : var(--color-gray-800);
+  
+  /* 
+   * Text colors - primary, secondary, footer (dark mode)
+   * Dependency: Tailwind color scale values (--color-slate-*, --color-gray-*)
+   * Used by: Theme utility classes (theme-text-*)
+   * Note: Dark mode uses light shades (50-400 range) for text
+   */
+  --color-theme-text-primary   : var(--color-slate-50);
+  --color-theme-text-secondary : var(--color-gray-400);
+  --color-theme-text-footer    : var(--color-gray-500);
+  
+  /* 
+   * Border colors - standard borders for panels, tables, inputs (dark mode)
+   * Dependency: Tailwind color scale values (--color-gray-*)
+   * Used by: Theme utility class (theme-border-color)
+   */
+  --color-theme-border : var(--color-gray-700);
+  
+  /* 
+   * Shadow colors - box shadows (dark mode)
+   * Dependency: Tailwind color scale values (--color-slate-*)
+   * Used by: Theme utility class (theme-box-shadow)
+   */
+  --color-theme-box-shadow : var(--color-slate-950);
+  
+  /* 
+   * Panel icon colors - background, text, border for panel heading icons (dark mode)
+   * Dependency: Tailwind color scale values (--color-slate-*)
+   * Used by: Theme utility class (theme-panel-icon)
+   */
+  --color-theme-panel-icon-background : var(--color-slate-700);
+  --color-theme-panel-icon-text       : var(--color-slate-50);
+  --color-theme-panel-icon-border     : var(--color-slate-600);
+  
+  /* 
+   * Interactive element colors - links, theme switch, outline (dark mode)
+   * Dependency: Tailwind color scale values (--color-blue-*)
+   * Used by: Footer links, theme switch thumb, focus outlines
+   */
+  --color-theme-link         : var(--color-blue-400);
+  --color-theme-link-hover   : var(--color-blue-300);
+  --color-theme-switch-thumb : var(--color-blue-500);
+  --color-theme-outline      : var(--color-blue-500);
+  
+  /* 
+   * Status popup colors - info, warning, reconnecting, initializing variants (dark mode)
+   * Dependency: Tailwind color scale values (--color-blue-*, --color-yellow-*, etc.)
+   * Used by: Theme utility classes (theme-status-*)
+   * Usage: Applied via JavaScript to status popup based on connection state
+   *   - info: Normal operation, chart hover tooltips
+   *   - warning: No telemetry data available
+   *   - reconnecting: Connection lost, attempting to reconnect
+   *   - initializing: Initial page load, establishing connection
+   * Note: Dark mode uses darker backgrounds (950 range) with lighter text (300 range)
+   */
+  --color-theme-status-info-background         : var(--color-blue-950);
+  --color-theme-status-info-text               : var(--color-blue-300);
+  --color-theme-status-info-border             : var(--color-blue-600);
+  --color-theme-status-warning-background      : var(--color-yellow-950);
+  --color-theme-status-warning-text            : var(--color-yellow-500);
+  --color-theme-status-warning-border          : var(--color-yellow-700);
+  --color-theme-status-reconnecting-background : var(--color-red-950);
+  --color-theme-status-reconnecting-text       : var(--color-red-400);
+  --color-theme-status-reconnecting-border     : var(--color-red-700);
+  --color-theme-status-initializing-background : var(--color-gray-800);
+  --color-theme-status-initializing-text       : var(--color-gray-200);
+  --color-theme-status-initializing-border     : var(--color-gray-500);
+  
+  /* 
+   * Progress bar colors - shared states for CPU, DRAM, PSRAM (dark mode)
+   * Dependency: Base color palette (--color-theme-*), Tailwind color scale values
+   * Used by: Theme utility classes (theme-progress-*-bg)
+   * Usage: Applied via JavaScript based on usage percentage thresholds
+   *   - low: < 50% usage (green)
+   *   - medium: 50-80% usage (yellow)
+   *   - high: > 80% usage (red)
+   */
+  --color-theme-progress-container-background : var(--color-gray-700);
+  --color-theme-progress-container-shadow     : var(--color-gray-500);
+  --color-theme-progress-low                  : var(--color-green-400);
+  --color-theme-progress-low-shadow           : var(--color-green-200);
+  --color-theme-progress-medium               : var(--color-yellow-300);
+  --color-theme-progress-medium-shadow        : var(--color-yellow-50);
+  --color-theme-progress-high                 : var(--color-red-500);
+  --color-theme-progress-high-shadow          : var(--color-red-300);
+  --color-theme-dram-fragmentation            : var(--color-blue-400);
+  --color-theme-dram-fragmentation-shadow     : var(--color-blue-200);
+  --color-theme-memory-used-text              : var(--color-theme-green);
+  
+  /* 
+   * Special element colors - stack low warning, abbr decoration, tablesort indicator, warning label (dark mode)
+   * Dependency: Semantic status colors (--color-theme-error), Tailwind color scale values
+   * Used by: Task table stack usage warnings, abbreviation tooltips, table sort indicators, warning label hover
+   */
+  --color-theme-stack-low                   : var(--color-red-500);
+  --color-theme-abbr-decoration             : var(--color-slate-500);
+  --color-theme-abbr-decoration-hover       : var(--color-slate-400);
+  --color-theme-sort-indicator              : var(--color-gray-400);
+  --color-theme-warning-label-hover-outline : var(--color-yellow-400);
+}
+

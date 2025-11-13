@@ -1,0 +1,165 @@
+/*********************************************************************************************
+ * Theme Utility Classes
+ * - Reusable utility classes for common theme property-value pairs
+ * - Defined using @utility directive so they can be used with @apply
+ * 
+ * By defining these utility classes with CSS custom properties, we can easily theme our application for light and dark modes.
+ * All primary color and style values are set via CSS variables in sysmon-theme-color-vars.css, which provides both default (light) and .dark overrides.
+ * This approach ensures a consistent usage structure—no matter the mode, utility classes remain the same in markup (@apply, class, etc.),
+ * but the underlying values adapt according to the active theme, making it easy to extend or modify light/dark or custom themes separately.
+ */
+
+/* Text color utilities */
+@utility theme-text {
+  color: var(--color-theme-text-primary);
+}
+
+@utility theme-text-secondary {
+  color: var(--color-theme-text-secondary);
+}
+
+@utility theme-text-footer {
+  color: var(--color-theme-text-footer);
+}
+
+/* Background color utilities */
+@utility theme-bg-body {
+  background-color: var(--color-theme-body-background);
+}
+
+@utility theme-bg-panel {
+  background-color: var(--color-theme-panel-background);
+}
+
+@utility theme-bg-table {
+  background-color: var(--color-theme-table-background);
+}
+
+@utility theme-bg-table-header {
+  background-color: var(--color-theme-table-header-background);
+}
+
+@utility theme-bg-input {
+  background-color: var(--color-theme-input-background);
+}
+
+@utility theme-bg-progress {
+  background-color: var(--color-theme-progress-container-background);
+}
+
+@utility theme-bg-switch-track {
+  background-color: var(--color-theme-switch-track-background);
+}
+
+@utility theme-bg-switch-thumb {
+  background-color: var(--color-theme-switch-thumb);
+}
+
+/* Border color utility */
+@utility theme-border-color {
+  border-color: var(--color-theme-border);
+}
+
+
+/* Status popup utilities - combined background, text, and border for each variant */
+@utility theme-status-info {
+  background-color: var(--color-theme-status-info-background);
+  color: var(--color-theme-status-info-text);
+  border-color: var(--color-theme-status-info-border);
+}
+
+@utility theme-status-warning {
+  background-color: var(--color-theme-status-warning-background);
+  color: var(--color-theme-status-warning-text);
+  border-color: var(--color-theme-status-warning-border);
+}
+
+@utility theme-warning-text {
+  color: var(--color-theme-status-warning-text);
+}
+
+@utility theme-status-reconnecting {
+  background-color: var(--color-theme-status-reconnecting-background);
+  color: var(--color-theme-status-reconnecting-text);
+  border-color: var(--color-theme-status-reconnecting-border);
+}
+
+@utility theme-status-initializing {
+  background-color: var(--color-theme-status-initializing-background);
+  color: var(--color-theme-status-initializing-text);
+  border-color: var(--color-theme-status-initializing-border);
+}
+
+/* Progress bar utilities - shared states for CPU, DRAM, PSRAM */
+@utility theme-progress-low-bg {
+  background-color: var(--color-theme-progress-low);
+}
+
+@utility theme-progress-medium-bg {
+  background-color: var(--color-theme-progress-medium);
+}
+
+@utility theme-progress-high-bg {
+  background-color: var(--color-theme-progress-high);
+}
+
+/* DRAM specific utilities */
+@utility theme-dram-fragmentation-bg {
+  background-color: var(--color-theme-dram-fragmentation);
+}
+
+/* Memory text color utilities */
+@utility theme-memory-used-text {
+  color: var(--color-theme-memory-used-text);
+}
+
+@utility theme-dram-fragmentation-text {
+  color: var(--color-theme-dram-fragmentation);
+}
+
+/* Outline color utility */
+@utility theme-outline-color {
+  outline-color: var(--color-theme-outline);
+}
+
+/* Outline style utility - structural outline properties (width, offset, style) */
+@utility theme-outline-style {
+  outline-width: 2px;
+  outline-offset: 1px;
+  outline-style: solid;
+}
+
+/* Panel icon utility - combined background, text, and border for panel heading icons */
+@utility theme-panel-icon {
+  background-color: var(--color-theme-panel-icon-background);
+  color: var(--color-theme-panel-icon-text);
+  border-color: var(--color-theme-panel-icon-border);
+}
+
+/* Box shadow utility - match 'shadow-md' styling */  
+@utility theme-box-shadow {
+  box-shadow: 0 4px 6px -1px color-mix(in srgb, var(--color-theme-box-shadow) 30%, transparent),
+              0 2px 4px -2px color-mix(in srgb, var(--color-theme-box-shadow) 30%, transparent);
+}
+
+/* Progress bar inset shadow styling */
+@utility theme-progress-container-shadow {
+  box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--color-theme-progress-container-shadow) 30%, transparent);
+}
+
+@utility theme-progress-low-shadow {
+  box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--color-theme-progress-low-shadow) 30%, transparent);
+}
+
+@utility theme-progress-medium-shadow {
+  box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--color-theme-progress-medium-shadow) 30%, transparent);
+}
+
+@utility theme-progress-high-shadow {
+  box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--color-theme-progress-high-shadow) 30%, transparent);
+}
+
+@utility theme-dram-fragmentation-shadow {
+  box-shadow: inset 0 1px 2px 0 color-mix(in srgb, var(--color-theme-dram-fragmentation-shadow) 30%, transparent);
+}
+

@@ -1,0 +1,33 @@
+# Build artifacts
+build/
+build-*/
+*.d
+*.o
+*.obj
+*.elf
+*.map
+*.bin
+
+# IDE/Editor files
+.vscode/
+.cursor/
+*.code-workspace
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# ESP-IDF specific
+sdkconfig
+sdkconfig.old
+dependencies.lock
+
+# Example-specific (if any)
+example/build/
+example/sdkconfig
+example/sdkconfig.old
+
+# WiFi credentials (example)
+example/main/wifi_credentials.h
+
