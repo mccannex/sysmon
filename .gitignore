@@ -23,6 +23,9 @@ sdkconfig
 sdkconfig.old
 dependencies.lock
 
+# Distribution artifacts
+dist/
+
 # Example-specific (if any)
 example/build/
 example/sdkconfig
